@@ -16,10 +16,10 @@ class FormatEnum(str, Enum):
 
 class ScanRequest(BaseModel):
     mode: ModeEnum
-    margin_left: str # l
-    margin_top: str # t
-    width: str # x
-    height: str # y
+    #margin_left: str # l
+    #margin_top: str # t
+    #width: str # x
+    #height: str # y
     resolution: str # dpi
     format: FormatEnum # png, jpeg, pdf
     filename: Optional[str]
