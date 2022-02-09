@@ -44,7 +44,7 @@ app.add_middleware(
 app.mount("/scans", StaticFiles(directory=settings.SCANS_DESTINATION), name="scans")
 
 
-@app.get('/scan/execute')
+@app.post('/scan/execute')
 def create_db(
     req: schemas.ScanRequest
 ):
