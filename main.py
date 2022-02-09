@@ -21,6 +21,7 @@ logger = get_logger()
 origins = [
     settings.DOMAIN_URL_API,
     settings.DOMAIN_URL_CLIENT,
+    'http://localhost:8080'
 ]
 
 logger.debug('Origins', origins)
