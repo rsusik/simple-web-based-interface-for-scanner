@@ -39,6 +39,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# app.mount("/scans", StaticFiles(directory=settings.SCANS_DESTINATION), name="scans")
 app.mount("/scans", StaticFiles(directory=settings.SCANS_DESTINATION), name="scans")
 
 
@@ -50,10 +51,10 @@ def create_db(
 
     params = [
         '--mode', req.mode,
-        '-l', req.margin_left,
-        '-t', req.margin_top,
-        '-x', req.width,
-        '-y', req.height,
+        #'-l', req.margin_left,
+        #'-t', req.margin_top,
+        #'-x', req.width,
+        #'-y', req.height,
         f'--resolution={req.resolution}',
         f'--format={req.format}',
         f'--buffer-size={settings.BUFFER_SIZE}'
