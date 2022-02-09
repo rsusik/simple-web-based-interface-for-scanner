@@ -1,16 +1,17 @@
 import datetime
 import os
 import random
-from typing import Any, Dict, List, Optional
-
+import subprocess
 from pathlib import Path
-import unicodedata
-import uuid
+import json
 
-from fastapi import FastAPI, Depends, File, HTTPException, Request, UploadFile, status
+from fastapi.responses import RedirectResponse
+from fastapi import FastAPI, File, Request, UploadFile
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.cors import CORSMiddleware
-from starlette.status import HTTP_200_OK, HTTP_402_PAYMENT_REQUIRED, HTTP_406_NOT_ACCEPTABLE
+
+import uvicorn
+from uvicorn.config import TRACE_LOG_LEVEL, LOGGING_CONFIG
 
 from core import schemas
 from core.config import get_settings
@@ -20,9 +21,7 @@ settings = get_settings()
 logger = get_logger()
 
 origins = [
-    settings.DOMAIN_URL_API,
-    settings.DOMAIN_URL_CLIENT,
-    'http://localhost:8080'
+    f'http://{settings.IP_ADDRESS}:{settings.PORT}'
 ]
 
 logger.debug('Origins', origins)
@@ -41,15 +40,19 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# app.mount("/scans", StaticFiles(directory=settings.SCANS_DESTINATION), name="scans")
-app.mount("/scans", StaticFiles(directory=settings.SCANS_DESTINATION), name="scans")
 
+app.mount(settings.SCANS_ADDRESS, StaticFiles(directory=settings.SCANS_FOLDER), name="scans")
+app.mount(settings.APP_ADDRESS, StaticFiles(directory=settings.APP_FOLDER, html=True), name="root")
+
+
+@app.get('/')
+def root_get():
+    return RedirectResponse('/app')
 
 @app.post('/scan/execute')
-def create_db(
+def scan_execute(
     req: schemas.ScanRequest
 ):
-    import subprocess
 
     params = [
         '--mode', req.mode,
@@ -57,10 +60,10 @@ def create_db(
         #'-t', req.margin_top,
         #'-x', req.width,
         #'-y', req.height,
-        '-l', 0,
-        '-t', 0,
-        '-x', 211,
-        '-y', 297,
+        '-l', '0',
+        '-t', '0',
+        '-x', '211',
+        '-y', '297',
         f'--resolution={req.resolution}',
         f'--format={req.format}',
         f'--buffer-size={settings.BUFFER_SIZE}'
@@ -76,10 +79,16 @@ def create_db(
     filename = datetime.datetime.now().strftime("%Y%m%d-%H%M%S") + '_' + str(random.randint(10, 99)) + f'.{file_ext}'
     if req.filename:
         filename = req.filename
-    params.append(f'-o{settings.SCANS_DESTINATION}/{filename}')
+    params.append(f'-o{settings.SCANS_FOLDER}/{filename}')
     
-
-    p = subprocess.run(["scanimage"] + params, capture_output=True, text=True, universal_newlines=True, encoding='utf-8', errors='ignore')
+    p = subprocess.run(
+        ["scanimage"] + params, 
+        capture_output=True, 
+        text=True, 
+        universal_newlines=True, 
+        encoding='utf-8', 
+        errors='ignore'
+    )
     
     out = p.stdout
     err = p.stderr
@@ -95,20 +104,20 @@ def create_db(
 
 
 
-@app.post('/images/update')
-def endpoint_images_uploadimage_post(
+@app.post('/scan/update')
+def endpoint_images_update_post(
     request: Request,
     file: UploadFile = File(...),
 ):
-    if 'content-length' not in request.headers or int(request.headers['content-length']) > settings.FILE_SIZE_LIMIT:
-        logger.error(f'{request.client.host} | {file.filename} | Content length is not provided or file is too large')
-        raise HTTPException(
-            status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
-            detail='Content length is not provided or file is too large'
-        )
+    # if 'content-length' not in request.headers or int(request.headers['content-length']) > settings.FILE_SIZE_LIMIT:
+    #     logger.error(f'{request.client.host} | {file.filename} | Content length is not provided or file is too large')
+    #     raise HTTPException(
+    #         status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+    #         detail='Content length is not provided or file is too large'
+    #     )
     
     # Save image
-    target_folder = Path(settings.SCANS_DESTINATION)
+    target_folder = Path(settings.SCANS_FOLDER)
     if not os.path.isdir(target_folder):
         os.mkdir(target_folder)
 
@@ -119,23 +128,37 @@ def endpoint_images_uploadimage_post(
     return True
 
 
-
+@app.get('/scans')
+def endpoint_images_update_post():
+    return list(filter(lambda x: Path(x).suffix in ['.jpg', '.jpeg', '.png', '.pdf'], os.listdir(settings.SCANS_FOLDER)))
 
 
 if __name__ == '__main__':
-    import uvicorn
-    from uvicorn.config import TRACE_LOG_LEVEL, LOGGING_CONFIG
-    LOGGING_CONFIG["formatters"]["default"]["fmt"] = "%(levelprefix)s %(asctime)s [%(filename)s:%(lineno)d] %(message)s"
-    LOGGING_CONFIG["formatters"]["access"]["fmt"]  = "%(levelprefix)s %(asctime)s (%(client_addr)s) [%(name)s] %(message)s"
-    for logger_ in LOGGING_CONFIG["loggers"]:
-        LOGGING_CONFIG["loggers"][logger_]['level'] = settings.LOG_LEVEL
-    for formatter in LOGGING_CONFIG["formatters"]:
-        LOGGING_CONFIG["formatters"][formatter]['datefmt'] = '%Y-%m-%d %H:%M:%S'
+
+    LOGGING_CONFIG['formatters']['default']['fmt'] = '%(levelprefix)s %(asctime)s [%(filename)s:%(lineno)d] %(message)s'
+    LOGGING_CONFIG['formatters']['access']['fmt']  = '%(levelprefix)s %(asctime)s (%(client_addr)s) [%(name)s] %(message)s'
+    for logger_ in LOGGING_CONFIG['loggers']:
+        LOGGING_CONFIG['loggers'][logger_]['level'] = settings.LOG_LEVEL
+    for formatter in LOGGING_CONFIG['formatters']:
+        LOGGING_CONFIG['formatters'][formatter]['datefmt'] = '%Y-%m-%d %H:%M:%S'
+
+    if not Path(settings.SCANS_FOLDER).exists:
+        os.mkdir(settings.SCANS_FOLDER)
+
+    front_config = {
+        'COMMENT': '!!!DO NOT EDIT MANUALLY!!!',
+        'api_url' : settings.IP_ADDRESS,
+        'api_port' : settings.PORT,
+        'scans_url' : settings.SCANS_ADDRESS
+    }
+
+    with open(f'{settings.APP_FOLDER}/config.json', 'w') as f:
+        json.dump(front_config, f)
 
     uvicorn.run(
         app, 
-        host=settings.API_HOSTNAME, 
-        port=int(settings.API_PORT),
+        host='0.0.0.0',
+        port=int(settings.PORT),
         access_log=True,
         use_colors=True
     )

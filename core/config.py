@@ -2,14 +2,15 @@ from pydantic import BaseSettings
 from functools import lru_cache
 
 class Settings(BaseSettings):
-    API_HOSTNAME: str
-    API_PORT: str
-    DOMAIN_URL_API: str
-    DOMAIN_URL_CLIENT: str
-    SCANS_DESTINATION: str
+    IP_ADDRESS: str
+    PORT: str
+    SCANS_FOLDER: str
+    SCANS_ADDRESS: str
+    APP_FOLDER: str
+    APP_ADDRESS: str
     LOG_LEVEL: str
     BUFFER_SIZE: int
-
+    
     class Config:
         env_file = ".env"
     
