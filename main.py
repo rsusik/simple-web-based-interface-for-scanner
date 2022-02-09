@@ -1,4 +1,5 @@
 import datetime
+import os
 import random
 from typing import Any, Dict, List, Optional
 
@@ -6,7 +7,7 @@ from pathlib import Path
 import unicodedata
 import uuid
 
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, File, HTTPException, Request, UploadFile, status
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.cors import CORSMiddleware
 from starlette.status import HTTP_200_OK, HTTP_402_PAYMENT_REQUIRED, HTTP_406_NOT_ACCEPTABLE
@@ -56,6 +57,10 @@ def create_db(
         #'-t', req.margin_top,
         #'-x', req.width,
         #'-y', req.height,
+        '-l', 0,
+        '-t', 0,
+        '-x', 211,
+        '-y', 297,
         f'--resolution={req.resolution}',
         f'--format={req.format}',
         f'--buffer-size={settings.BUFFER_SIZE}'
@@ -87,6 +92,32 @@ def create_db(
         detail = out if code==0 else err,
         filename = filename
     )
+
+
+
+@app.post('/images/update')
+def endpoint_images_uploadimage_post(
+    request: Request,
+    file: UploadFile = File(...),
+):
+    if 'content-length' not in request.headers or int(request.headers['content-length']) > settings.FILE_SIZE_LIMIT:
+        logger.error(f'{request.client.host} | {file.filename} | Content length is not provided or file is too large')
+        raise HTTPException(
+            status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            detail='Content length is not provided or file is too large'
+        )
+    
+    # Save image
+    target_folder = Path(settings.SCANS_DESTINATION)
+    if not os.path.isdir(target_folder):
+        os.mkdir(target_folder)
+
+    target_filepath = target_folder / file.filename
+    with open(target_filepath, 'wb+') as file_object:
+        filesize = file_object.write(file.file.read())
+
+    return True
+
 
 
 
