@@ -84,7 +84,8 @@ def create_db(
     
     return schemas.ScanResult(
         code = code,
-        detail = out if code==0 else err
+        detail = out if code==0 else err,
+        filename = filename
     )
 
 

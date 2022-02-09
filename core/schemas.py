@@ -22,8 +22,9 @@ class ScanRequest(BaseModel):
     #height: str # y
     resolution: str # dpi
     format: FormatEnum # png, jpeg, pdf
-    filename: Optional[str]
+    filename: Optional[str] = None
 
 class ScanResult(BaseModel):
     code: int
     detail: str
+    filename: Optional[str] = None
