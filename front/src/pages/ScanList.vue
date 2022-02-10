@@ -1,20 +1,24 @@
 <template>
 
-  <q-page class="flex flex-center">
+  <q-page class="col">
       <q-list class="shadow-2 rounded-borders q-mx-lg q-my-lg" style="width: 100%;">
         <q-item v-for="item in items" :key="item" style="border-bottom: 1px solid #eee" >
           <q-item-section thumbnail>
             <q-img 
-              class="rounded-borders"
+              class="text-center"
               fit="contain"
-              style="width: 128px; max-height: 128px; border: 1px solid #eee"
-              :ratio="1" 
+              style="width: 128px; max-height: 128px; border: 1px solid #eee;"
+              :img-style="{
+                'min-width': '100%', 
+                'min-height': '100%', 
+                'object-fit': 'cover'
+              }"
               :src="`${item.src}`"
               spinner-color="black" 
             />
           </q-item-section>
           <q-item-section style="overflow-wrap:break-word; hyphens: auto; word-break: break-all;">
-            <a :href="item.src">{{item.filename}}</a>
+            <a :href="item.src" style="font-size: 0.9rem;">{{item.filename}}</a>
             
           </q-item-section>
         </q-item>

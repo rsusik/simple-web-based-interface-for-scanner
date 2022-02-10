@@ -47,7 +47,7 @@
     <div v-if="filename != undefined">
       <div class="row justify-center q-mt-lg">
         <div style="position:relative;">
-          <img ref="img" :src="image_url" style="width:100%;min-width:100%;" crossorigin="anonymous" />
+          <img ref="img" :src="image_url" style="max-height:500px;" crossorigin="anonymous" />
         </div>
       </div>
       <div class="row justify-center">

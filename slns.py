@@ -21,7 +21,10 @@ settings = get_settings()
 logger = get_logger()
 
 origins = [
-    f'http://{settings.IP_ADDRESS}:{settings.PORT}'
+    f'http://{settings.IP_ADDRESS}:{settings.PORT}',
+    # The below entries can be removed (if not used on server)
+    f'http://127.0.0.1:{settings.PORT}',
+    f'http://localhost:{settings.PORT}'
 ]
 
 logger.debug('Origins', origins)
@@ -40,6 +43,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+def create_folder(folder):
+    if not Path(folder).exists():
+        os.mkdir(folder)
+
+create_folder(settings.SCANS_FOLDER)
+create_folder(settings.APP_FOLDER)
 
 app.mount(settings.SCANS_ADDRESS, StaticFiles(directory=settings.SCANS_FOLDER), name="scans")
 app.mount(settings.APP_ADDRESS, StaticFiles(directory=settings.APP_FOLDER, html=True), name="root")
@@ -141,9 +150,6 @@ if __name__ == '__main__':
         LOGGING_CONFIG['loggers'][logger_]['level'] = settings.LOG_LEVEL
     for formatter in LOGGING_CONFIG['formatters']:
         LOGGING_CONFIG['formatters'][formatter]['datefmt'] = '%Y-%m-%d %H:%M:%S'
-
-    if not Path(settings.SCANS_FOLDER).exists:
-        os.mkdir(settings.SCANS_FOLDER)
 
     front_config = {
         'COMMENT': '!!!DO NOT EDIT MANUALLY!!!',
