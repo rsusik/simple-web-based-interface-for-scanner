@@ -40,14 +40,24 @@ Then you can access the scanner through http://localhost:5520
 
 ## Screenshots
 
-<p align="center">
-    <img src="screenshots/01-welcome-screen.png" width="300">
-    <img src="screenshots/02-scanning-params.png" width="300">
-    <img src="screenshots/03-scanning-progress.png" width="300">
-    <img src="screenshots/04-cropping.png" width="300">
-    <img src="screenshots/05-menu.png" width="300">
-    <img src="screenshots/06-list.png" width="300">
-</p>
+### Welcome screen
+<img src="screenshots/01-welcome-screen.png" width="300">
+
+### Scanning parameters
+<img src="screenshots/02-scanning-params.png" width="300">
+
+### Scanning in progress
+<img src="screenshots/03-scanning-progress.png" width="300">
+
+### Cropping scanned image
+<img src="screenshots/04-cropping.png" width="300">
+
+### Side menu
+<img src="screenshots/05-menu.png" width="300">
+
+### List of scanned images
+<img src="screenshots/06-list.png" width="300">
+
 
 ## TODO:
 
