@@ -11,7 +11,7 @@
           @click="toggleLeftDrawer"
         />
 
-        <q-toolbar-title>Simple Linux Network Scanner</q-toolbar-title>
+        <q-toolbar-title>Simple Web-based Interface for Scanner</q-toolbar-title>
       </q-toolbar>
     </q-header>
 

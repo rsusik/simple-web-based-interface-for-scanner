@@ -1,8 +1,8 @@
 {
-  "name": "simple-linux-network-scanner",
+  "name": "Simple-Web-based-Interface-for-Scanner",
   "version": "0.0.1",
-  "description": "Simple Linux Network Scanner",
-  "productName": "Simple Linux Network Scanner",
+  "description": "Simple Web-based Interface for Scanner",
+  "productName": "Simple Web-based Interface for Scanner",
   "author": "rsusik <robert.susik@gmail.com>",
   "private": true,
   "scripts": {

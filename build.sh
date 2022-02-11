@@ -3,4 +3,4 @@ quasar build -m spa && \
 rm -rf ../app/* && \
 mv dist/spa/* ../app/ && \
 cd .. && \
-tar -czvf slns.tar.gz app core .env slns.py LICENSE
+tar -czvf swis.tar.gz app core .env swis.py LICENSE

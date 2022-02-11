@@ -1,9 +1,11 @@
+import argparse
 import datetime
 import os
 import random
 import subprocess
 from pathlib import Path
 import json
+from typing import List
 
 from fastapi.responses import RedirectResponse
 from fastapi import FastAPI, File, Request, UploadFile
@@ -20,32 +22,27 @@ from core.logger import get_logger
 settings = get_settings()
 logger = get_logger()
 
-origins = [
-    f'http://{settings.IP_ADDRESS}:{settings.PORT}',
-    # The below entries can be removed (if not used on server)
-    f'http://127.0.0.1:{settings.PORT}',
-    f'http://localhost:{settings.PORT}'
-]
+def create_folder(folder):
+    if not Path(folder).exists():
+        os.mkdir(folder)
 
-logger.debug('Origins', origins)
+def add_cors_middleware(app: FastAPI, origins: List[str]):
+
+    logger.debug('Origins', origins)
+
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=origins,
+        allow_credentials=True,
+        allow_methods=['GET', 'OPTIONS', 'GET', 'PUT', 'POST', 'DELETE'],
+        allow_headers=["*"],
+    )
 
 app = FastAPI(
     # openapi_url=None,
     # docs_url=None,
     # redoc_url=None,
 )
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=['GET', 'OPTIONS', 'GET', 'PUT', 'POST', 'DELETE'],
-    allow_headers=["*"],
-)
-
-def create_folder(folder):
-    if not Path(folder).exists():
-        os.mkdir(folder)
 
 create_folder(settings.SCANS_FOLDER)
 create_folder(settings.APP_FOLDER)
@@ -62,13 +59,8 @@ def root_get():
 def scan_execute(
     req: schemas.ScanRequest
 ):
-
     params = [
         '--mode', req.mode,
-        #'-l', req.margin_left,
-        #'-t', req.margin_top,
-        #'-x', req.width,
-        #'-y', req.height,
         '-l', '0',
         '-t', '0',
         '-x', '211',
@@ -118,14 +110,6 @@ def endpoint_images_update_post(
     request: Request,
     file: UploadFile = File(...),
 ):
-    # if 'content-length' not in request.headers or int(request.headers['content-length']) > settings.FILE_SIZE_LIMIT:
-    #     logger.error(f'{request.client.host} | {file.filename} | Content length is not provided or file is too large')
-    #     raise HTTPException(
-    #         status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
-    #         detail='Content length is not provided or file is too large'
-    #     )
-    
-    # Save image
     target_folder = Path(settings.SCANS_FOLDER)
     if not os.path.isdir(target_folder):
         os.mkdir(target_folder)
@@ -144,12 +128,42 @@ def endpoint_images_update_post():
 
 if __name__ == '__main__':
 
+    parser = argparse.ArgumentParser(
+        description='Simple Web-based Interface for Scanner', 
+        epilog='python swis.py --ip 192.168.1.105 --port 5520'
+    )
+    parser.add_argument('-i', '--ip', dest='ip', type=str, default='127.0.0.1', help='IP or hostname')
+    parser.add_argument('-p', '--port', dest='port', type=str, default='5520',      help='port')
+    parser.add_argument('-d', '--destination', dest='destination', type=str, default='scans', help='destination for scanned documents')
+    args = parser.parse_args()
+
+    if args.ip:
+        settings.IP_ADDRESS = args.ip
+
+    if args.port:
+        settings.PORT = args.port
+
+    if args.destination:
+        settings.SCANS_FOLDER = args.destination
+
     LOGGING_CONFIG['formatters']['default']['fmt'] = '%(levelprefix)s %(asctime)s [%(filename)s:%(lineno)d] %(message)s'
     LOGGING_CONFIG['formatters']['access']['fmt']  = '%(levelprefix)s %(asctime)s (%(client_addr)s) [%(name)s] %(message)s'
     for logger_ in LOGGING_CONFIG['loggers']:
         LOGGING_CONFIG['loggers'][logger_]['level'] = settings.LOG_LEVEL
     for formatter in LOGGING_CONFIG['formatters']:
         LOGGING_CONFIG['formatters'][formatter]['datefmt'] = '%Y-%m-%d %H:%M:%S'
+
+    origins = [
+        f'http://{settings.IP_ADDRESS}:{settings.PORT}',
+        # The below entries can be removed (if not used on server)
+        f'http://127.0.0.1:{settings.PORT}',
+        f'http://localhost:{settings.PORT}',
+        # The below can be removed (only for debug/dev purpose)
+        f'http://127.0.0.1:8080',
+        f'http://localhost:8080'
+    ]
+
+    add_cors_middleware(app, origins)
 
     front_config = {
         'COMMENT': '!!!DO NOT EDIT MANUALLY!!!',
@@ -168,5 +182,3 @@ if __name__ == '__main__':
         access_log=True,
         use_colors=True
     )
-
-# uvicorn main:app --host localhost --port 36453 --ssl-keyfile localhost.key --ssl-certfile localhost.crt

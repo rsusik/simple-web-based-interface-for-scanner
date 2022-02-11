@@ -3,25 +3,24 @@ from enum import Enum
 from pydantic import BaseModel
 from typing import Optional
 
-class ModeEnum(str, Enum):
+class ScanModeEnum(str, Enum):
     color = 'color'
     gray = 'gray'
     lineart = 'lineart'
 
-class FormatEnum(str, Enum):
+class ScanFormatEnum(str, Enum):
     png = 'png'
     jpeg = 'jpeg'
     pdf = 'pdf'
 
-
 class ScanRequest(BaseModel):
-    mode: ModeEnum
+    mode: ScanModeEnum
     #margin_left: str # l
     #margin_top: str # t
     #width: str # x
     #height: str # y
     resolution: str # dpi
-    format: FormatEnum # png, jpeg, pdf
+    format: ScanFormatEnum
     filename: Optional[str] = None
 
 class ScanResult(BaseModel):

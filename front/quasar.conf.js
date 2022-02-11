@@ -145,9 +145,9 @@ module.exports = configure(function (ctx) {
       },
 
       manifest: {
-        name: `Simple Linux Network Scanner`,
-        short_name: `Simple Linux Network Scanner`,
-        description: `Simple Linux Network Scanner`,
+        name: `Simple Web-based Interface for Scanner`,
+        short_name:  `Simple Web-based Interface for Scanner`,
+        description: `Simple Web-based Interface for Scanner`,
         display: "standalone",
         orientation: "portrait",
         background_color: "#ffffff",
@@ -210,7 +210,7 @@ module.exports = configure(function (ctx) {
       builder: {
         // https://www.electron.build/configuration/configuration
 
-        appId: "simple-linux-network-scanner",
+        appId: "Simple-Web-based-Interface-for-Scanner",
       },
 
       // "chain" is a webpack-chain object https://github.com/neutrinojs/webpack-chain

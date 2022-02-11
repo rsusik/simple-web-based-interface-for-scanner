@@ -1,5 +1,5 @@
 {
-    "api_url" : "127.0.0.1",
+    "api_url" : "localhost",
     "api_port" : "5520",
     "scans_url" : "/files"
 }
