@@ -37,6 +37,8 @@ python swis.py --ip localhost --port 5520
 
 Then you can access the scanner through http://localhost:5520
 
+**❗IMPORTANT❗** Change the IP (`localhost` above) to appropriate host IP address of the host if you want to access the scanner from other computers (or other devices).
+
 
 ## Screenshots
 
