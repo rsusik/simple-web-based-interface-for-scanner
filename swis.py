@@ -1,3 +1,17 @@
+#!/usr/bin/env python
+
+__version__ = '0.3.0'
+
+import sys
+
+if sys.version_info.major !=3 or sys.version_info.minor < 8:
+    print('\033[41m', end='')
+    print('=========================> ERROR <=============================')
+    print('>       The minimum supported Python version is 3.8.          <')
+    print('>          Please install it and then try again.              <')
+    print('===============================================================\033[0m')
+    exit(1)
+
 import argparse
 import datetime
 import os
@@ -16,10 +30,13 @@ import uvicorn
 from uvicorn.config import TRACE_LOG_LEVEL, LOGGING_CONFIG
 
 from core import schemas
-from core.config import get_settings
+from core.config import Settings, get_settings
 from core.logger import get_logger
 
-settings = get_settings()
+
+root_folder = os.path.dirname(os.path.realpath(__file__))
+settings = get_settings(_env_file=f'{root_folder}/.env')
+settings.ROOT_FOLDER = root_folder
 logger = get_logger()
 
 def create_folder(folder):
@@ -38,18 +55,17 @@ def add_cors_middleware(app: FastAPI, origins: List[str]):
         allow_headers=["*"],
     )
 
-app = FastAPI(
-    # openapi_url=None,
-    # docs_url=None,
-    # redoc_url=None,
-)
+def mount_folders(app: FastAPI, settings: Settings):
+    scans_folder = f'{settings.SCANS_FOLDER}'
+    app_folder = f'{settings.ROOT_FOLDER}/{settings.APP_FOLDER}'
+    create_folder(scans_folder)
+    create_folder(app_folder)
 
-create_folder(settings.SCANS_FOLDER)
-create_folder(settings.APP_FOLDER)
+    app.mount(settings.SCANS_ADDRESS, StaticFiles(directory=scans_folder), name="scans")
+    app.mount(settings.APP_ADDRESS, StaticFiles(directory=app_folder, html=True), name="root")
 
-app.mount(settings.SCANS_ADDRESS, StaticFiles(directory=settings.SCANS_FOLDER), name="scans")
-app.mount(settings.APP_ADDRESS, StaticFiles(directory=settings.APP_FOLDER, html=True), name="root")
 
+app = FastAPI()
 
 @app.get('/')
 def root_get():
@@ -164,6 +180,7 @@ if __name__ == '__main__':
     ]
 
     add_cors_middleware(app, origins)
+    mount_folders(app, settings)
 
     front_config = {
         'COMMENT': '!!!DO NOT EDIT MANUALLY!!!',

@@ -1,6 +1,7 @@
 app/*
 front/dist/*
 *.tar.gz
+pypi/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
