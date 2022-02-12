@@ -20,6 +20,7 @@ From technical perspective it is simply SANE scanimage wrapper. There are quite 
 - Python >= 3.8
 - [Optionally] NPM (for frontend app building)
 
+
 ## Build app
 
 ```
@@ -28,14 +29,18 @@ sh build.sh
 
 ## Run
 
+1. Download the latest release from: 
+2. Run below command (extracts, installs dependencies and executes):
+
 ```
 mkdir -p swis && \
 tar -C swis -xvzf swis.tar.gz && \
 cd swis && \
+pip install -r requirements.txt && \
 python swis.py --ip localhost --port 5520
 ```
 
-Then you can access the scanner through http://localhost:5520
+3. Then you can access the scanner through http://localhost:5520
 
 **❗IMPORTANT❗** Change the IP (`localhost` above) to appropriate host IP address of the host if you want to access the scanner from other computers (or other devices).
 
