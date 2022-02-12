@@ -29,7 +29,7 @@ sh build.sh
 
 ## Run
 
-1. Download the latest release from: 
+1. Download the latest release from: https://github.com/rsusik/simple-web-based-interface-for-scanner/releases 
 2. Run below command (extracts, installs dependencies and executes):
 
 ```
