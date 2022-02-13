@@ -1,6 +1,6 @@
 cd front && \
 quasar build -m spa && \
-rm -rf ../app/* && \
-mv dist/spa/* ../app/ && \
+rm -rf ../swis/app/* && \
+mv dist/spa/* ../swis/app/ && \
 cd .. && \
-tar -czvf swis.tar.gz app core .env swis.py LICENSE
+tar -czvf swis.tar.gz swis LICENSE README.md requirements.txt

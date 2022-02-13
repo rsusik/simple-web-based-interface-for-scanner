@@ -1,0 +1,15 @@
+[Unit]
+Description=Simple Web-based Interface for Scanner
+After=network.target
+
+[Service]
+ExecStart=swis --nocfg {{PARAMS}}
+Restart=always
+User={{USER}}
+Group={{GROUP}}
+WorkingDirectory={{WD}}
+StandardOutput=syslog
+StandardError=syslog
+
+[Install]
+WantedBy=multi-user.target

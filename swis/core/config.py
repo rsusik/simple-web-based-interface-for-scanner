@@ -1,3 +1,4 @@
+from typing import Optional
 from pydantic import BaseSettings
 from functools import lru_cache
 
@@ -11,6 +12,8 @@ class Settings(BaseSettings):
     APP_ADDRESS: str
     LOG_LEVEL: str
     BUFFER_SIZE: int
+    USER: Optional[str]
+    GROUP: Optional[str]
     
     class Config:
         env_file = '.env'

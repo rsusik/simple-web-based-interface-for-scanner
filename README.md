@@ -20,35 +20,32 @@ From technical perspective it is simply SANE scanimage wrapper. There are quite 
 - Python >= 3.8
 - [Optionally] NPM (for frontend app building)
 
-## Install and run from pip (RECOMMENDED)
+## Install and run (local user)
 ```
 pip install swis
-python -m swis --ip localhost --port 5520
+swis --ip localhost --port 5520
 ```
 **❗IMPORTANT❗** Change the IP (`localhost` above) to a proper host IP address if you want to access the scanner from other computers (or other devices).
 
-## Build app
+## Install and run (system service)
+
+### Prerequisites
+This process requires root privileges, and you need to have Python>=3.8 installed. Also, there is the possibility that the server variants the system doesn't have `pip` installed by default. In this case, execute below::
+
+Fedora (and similar): `sudo dnf install python3-pip`
+Ubuntu (and similar): `sudo apt-get install python3-pip`
+
+### Install and start service
 
 ```
-sh build.sh
+sudo pip3 install swis
+sudo swis --ip [HOST IP ADDRESS] --port 5520 service install -u [USER] -g [GROUP]
+sudo swis service start
 ```
 
-## Run (from source code)
+You can check the status by running: `sudo swis service status`
 
-1. Download the latest release from: https://github.com/rsusik/simple-web-based-interface-for-scanner/releases 
-2. Run below command (extracts, installs dependencies and executes):
-
-```
-mkdir -p swis && \
-tar -C swis -xvzf swis.tar.gz && \
-cd swis && \
-pip install -r requirements.txt && \
-python swis.py --ip localhost --port 5520
-```
-
-3. Then you can access the scanner through http://localhost:5520
-
-**❗IMPORTANT❗** Change the IP (`localhost` above) to appropriate host IP address of the host if you want to access the scanner from other computers (or other devices).
+**❗IMPORTANT❗** Change the IP (`[HOST IP ADDRESS]` above) to a proper host IP address.
 
 
 ## Screenshots
@@ -76,6 +73,6 @@ python swis.py --ip localhost --port 5520
 
 - [ ] error handling
 - [x] pip package
-- [ ] automatically add service with `systemctl`
+- [x] automatically add service with `systemctl`
 - [ ] better user interface (i.e. image remove button)
 - [ ] move actions to vuex

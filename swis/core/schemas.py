@@ -27,3 +27,8 @@ class ScanResult(BaseModel):
     code: int
     detail: str
     filename: Optional[str] = None
+
+class ProcessResult(BaseModel):
+    returncode: int
+    stdout: str
+    stderr: str
