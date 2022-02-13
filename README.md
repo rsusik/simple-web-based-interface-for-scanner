@@ -9,9 +9,9 @@
     <img src="https://github.com/rsusik/simple-web-based-interface-for-scanner/raw/main/screenshots/04-cropping.png" width="300">
 </p>
 
-This is simple web-based interface for scanner. It allows share the scanner via IP address which makes it accessible by web browser. The frontend interface allows user to crop the image as well as browse previousely scanned images.
+This is a simple web-based interface for scanners. It allows sharing the scanner via IP address, making it accessible by the web browser. The frontend interface allows users to crop the image and browse previously scanned images.
 
-From technical perspective it is simply SANE scanimage wrapper. There are quite many things to do to make it production (see TODO section).
+From a technical perspective, it is simply a SANE scanimage wrapper. There are quite many things to do to make it production (see TODO section).
 
 ## Requirements
 
@@ -30,7 +30,7 @@ swis --ip localhost --port 5520
 ## Install and run (system service)
 
 ### Prerequisites
-This process requires root privileges, and you need to have Python>=3.8 installed. Also, there is the possibility that the server variants the system doesn't have `pip` installed by default. In this case, execute below::
+This process requires root privileges, and you need to have Python>=3.8 installed. Also, there is the possibility that the server variants the system doesn't have `pip` installed by default. In this case, execute below:
 
 Fedora (and similar): `sudo dnf install python3-pip`
 Ubuntu (and similar): `sudo apt-get install python3-pip`
