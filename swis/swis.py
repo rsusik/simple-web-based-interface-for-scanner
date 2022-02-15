@@ -48,7 +48,8 @@ def restricted(f):
             return f(*args, **kwargs)
         except IOError as e:
             if (e.errno == errno.EPERM or e.errno == errno.EACCES):
-                sys.exit('\033[41mYou need root permissions\033[0m')
+                logger.exception('\033[41mPermission denied\033[0m')
+                sys.exit('\033[41mPermission denied\033[0m')
             raise e
     return inner
 

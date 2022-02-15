@@ -32,20 +32,20 @@ swis --ip localhost --port 5520
 ### Prerequisites
 This process requires root privileges, and you need to have Python>=3.8 installed. Also, there is the possibility that the server variants the system doesn't have `pip` installed by default. In this case, execute below:
 
-Fedora (and similar): `sudo dnf install python3-pip`
-Ubuntu (and similar): `sudo apt-get install python3-pip`
+- Fedora (and similar): `sudo dnf install python3-pip`
+- Ubuntu (and similar): `sudo apt-get install python3-pip`
 
 ### Install and start service
 
 ```
 sudo pip3 install swis
-sudo swis --ip [HOST IP ADDRESS] --port 5520 service install -u [USER] -g [GROUP]
+sudo swis --ip [HOST IP ADDRESS] --port 5520 -u [USER] -g [GROUP] service install 
 sudo swis service start
 ```
 
 You can check the status by running: `sudo swis service status`
 
-**❗IMPORTANT❗** Change the IP (`[HOST IP ADDRESS]` above) to a proper host IP address.
+**❗IMPORTANT❗** Change the IP (`[HOST IP ADDRESS]` above) to a proper host IP address, and `[USER]` and `[GROUP]` to a proper system user (owner of scanned documents).
 
 
 ## Screenshots
@@ -74,5 +74,6 @@ You can check the status by running: `sudo swis service status`
 - [ ] error handling
 - [x] pip package
 - [x] automatically add service with `systemctl`
-- [ ] better user interface (i.e. image remove button)
-- [ ] move actions to vuex
+- [ ] better user interface (i.e. image remove button, save as pdf, etc.)
+- [ ] move actions to vuex (frontend)
+
