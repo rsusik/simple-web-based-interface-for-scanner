@@ -25,12 +25,15 @@ From a technical perspective, it is simply a SANE scanimage wrapper. There are q
 pip install swis
 swis --ip localhost --port 5520
 ```
+
+If successfully executed visit the http://localhost:5520 (Note: `http` (without `s`))
+
 **❗IMPORTANT❗** Change the IP (`localhost` above) to a proper host IP address if you want to access the scanner from other computers (or other devices).
 
 ## Install and run (system service)
 
 ### Prerequisites
-This process requires root privileges, and you need to have Python>=3.8 installed. Also, there is the possibility that the server variants the system doesn't have `pip` installed by default. In this case, execute below:
+This process requires root privileges, and you need to have Python>=3.8 installed. If the root user does't have the the `pip` installed, you will have to install it by running the below:
 
 - Fedora (and similar): `sudo dnf install python3-pip`
 - Ubuntu (and similar): `sudo apt-get install python3-pip`
