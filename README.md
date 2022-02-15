@@ -5,6 +5,15 @@
     <em>Simple Web-based Interface for Scanner</em>
 </p>
 
+<p align="center">
+<a href="https://pypi.org/project/swis" target="_blank">
+    <img src="https://img.shields.io/pypi/v/swis?color=%2334D058&label=pypi%20package" alt="Package version">
+</a>
+<a href="https://github.com/rsusik/simple-web-based-interface-for-scanner/blob/master/LICENSE" target="_blank">
+    <img src="https://img.shields.io/github/license/rsusik/simple-web-based-interface-for-scanner" alt="License">
+</a>
+</p>
+
 <p align="center" style="margin-top: 20pt;">
     <img src="https://github.com/rsusik/simple-web-based-interface-for-scanner/raw/main/screenshots/04-cropping.png" width="300">
 </p>
