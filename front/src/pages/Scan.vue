@@ -53,9 +53,15 @@
       <div class="row justify-center">
         <div class="q-mr-md q-mb-md">
           <div>
-            <q-btn @click="downloadImage" label="Download" icon="download" flat size="xl"
-              class="q-my-md" style="border: 1pt solid black; border-radius: 20pt;"
-            />
+            <a 
+              :href="image_url" 
+              class="q-my-md" 
+              style="border: 1pt solid black; border-radius: 20pt; font-size: 22pt; padding: 8pt; text-decoration: none;"
+              download
+            >
+              <q-icon name="download" />
+              Download
+            </a>
           </div>
           <div>Filename: {{filename}}</div>
         </div>
@@ -233,12 +239,12 @@ export default defineComponent({
 
     getImageData: function () {
       if (this.cropper == undefined) {
+        // TODO: need to be fixed
         const cvs = document.createElement('canvas')
         cvs.width = this.$refs.img.width
         cvs.height = this.$refs.img.height
         cvs.getContext('2d').drawImage(this.$refs.img, 0, 0)
 
-        //const pixelData = cvs.getImageData()
         return cvs.toDataURL()
       } else {
         return this.cropper.getCroppedCanvas().toDataURL(`image/${this.getTypeFromFilename(this.filename)}`)
