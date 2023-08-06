@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-__version__ = '0.3.13'
+__version__ = '0.4.0'
 
 import sys
 
@@ -268,8 +268,22 @@ def endpoint_images_update_post(
 
 
 @app.get('/scans')
-def endpoint_images_update_post():
+def endpoint_images_get():
     return list(filter(lambda x: Path(x).suffix in ['.jpg', '.jpeg', '.png', '.pdf'], os.listdir(settings.SCANS_FOLDER)))
+
+
+@app.delete('/scans/{filename}')
+def endpoint_images_delete(
+    request: Request,
+    filename: str
+):
+    target_filepath = Path(settings.SCANS_FOLDER) / filename
+    print(target_filepath)
+    if target_filepath.exists():
+        os.remove(target_filepath)
+        return True
+    return False
+
 
 def write_conf(settings:Settings):
     front_config = {

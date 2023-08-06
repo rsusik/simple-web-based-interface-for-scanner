@@ -1,7 +1,7 @@
 <template>
 
   <q-page class="col">
-      <q-list class="shadow-2 rounded-borders q-mx-lg q-my-lg" style="width: 100%;">
+      <q-list class="shadow-2 rounded-borders q-mx-lg q-my-lg" style="width: 96%;">
         <q-item v-for="item in items" :key="item" style="border-bottom: 1px solid #eee" >
           <q-item-section thumbnail>
             <q-img 
@@ -20,6 +20,16 @@
           <q-item-section style="overflow-wrap:break-word; hyphens: auto; word-break: break-all;">
             <a :href="item.src" style="font-size: 0.9rem;">{{item.filename}}</a>
             
+          </q-item-section>
+          <q-item-section avatar>
+            <q-btn
+              color="red"
+              label=""
+              icon="delete"
+              size="sm"
+
+              @click="removeImage(item.filename)"
+            />
           </q-item-section>
         </q-item>
       </q-list>
@@ -96,6 +106,21 @@ export default defineComponent({
         return 'other'
       }
     },
+    removeImage: function(filename) {
+      this.$axios.delete(`http://${this.config.api_url}:${this.config.api_port}/scans/${filename}`)
+      .then((response) => {
+        if (response?.status == 200) {
+          this.files = this.files.filter( (item) => {
+            return item != filename
+          })
+        } else {
+          // error
+        }
+      })
+      .catch(function (err) {
+        // error
+      });
+    }
   }
 
 
