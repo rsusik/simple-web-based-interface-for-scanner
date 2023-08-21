@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-__version__ = '0.4.0'
-
 import sys
 
 if sys.version_info[0] !=3 or sys.version_info.minor < 8:
@@ -35,6 +33,7 @@ from uvicorn.config import TRACE_LOG_LEVEL, LOGGING_CONFIG
 from swis.core import schemas
 from swis.core.config import Settings, get_settings
 from swis.core.logger import get_logger
+from swis.version import __version__
 
 
 root_folder = os.path.dirname(os.path.realpath(__file__))

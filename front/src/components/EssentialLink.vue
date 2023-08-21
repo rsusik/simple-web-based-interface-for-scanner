@@ -1,5 +1,5 @@
 <template>
-  <q-item clickable tag="a" :to="link">
+  <q-item clickable tag="a" @click="gotourl">
     <q-item-section v-if="icon" avatar>
       <q-icon :name="icon" />
     </q-item-section>
@@ -37,6 +37,15 @@ export default defineComponent({
     icon: {
       type: String,
       default: "",
+    },
+  },
+  methods: {
+    gotourl() {
+      if (window.location.href.endsWith(this.link)) {
+        window.location.reload();
+      } else {
+        window.location.href = this.link;
+      }
     },
   },
 });

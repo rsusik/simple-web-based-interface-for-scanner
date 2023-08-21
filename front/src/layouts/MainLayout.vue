@@ -41,13 +41,13 @@ const linksList = [
     title: "Scan",
     caption: "Scan image",
     icon: "scanner",
-    link: "/scan",
+    link: "/#/scan",
   },
   {
     title: "Images",
     caption: "List of images",
     icon: "photo_library",
-    link: "/scans",
+    link: "/#/scans",
   },
 ];
 

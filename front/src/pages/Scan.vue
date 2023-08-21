@@ -104,13 +104,13 @@ export default defineComponent({
         {label: '16:9', x: 16, y: 9},
         {label: 'A4', x: 210, y: 297},
       ],
-      format: 'png',
+      format: undefined, // 'png',
       formatOptions: ['png', 'jpg'],
-      resolution: '150',
+      resolution: undefined, // '150',
       resolutionOptions: ['75', '100', '150', '200', '250', '300', '600'],
-      mode: 'color',
+      mode: undefined, // 'color',
       modeOptions: ['color', 'gray'],
-      inProgress: false
+      inProgress: false,
     }
   },
 
@@ -123,7 +123,26 @@ export default defineComponent({
     },
     image_update_url: function() {
       return `http://${this.config.api_url}:${this.config.api_port}/scan/update`
-    }
+    },
+  },
+
+  watch: {
+    resolution: function (val) {
+      localStorage.setItem('resolution', val)
+    },
+    format: function (val) {
+      localStorage.setItem('format', val)
+    },
+    mode: function (val) {
+      localStorage.setItem('mode', val)
+    },
+  },
+
+  created() {
+    this.resolution = localStorage.getItem('resolution') ?? '150';
+    this.format = localStorage.getItem('format') ?? 'png';
+    this.mode = localStorage.getItem('mode') ?? 'color';
+    this.randVal = Math.random()
   },
 
   mounted() {
