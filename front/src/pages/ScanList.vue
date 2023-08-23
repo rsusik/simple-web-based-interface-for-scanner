@@ -74,10 +74,22 @@ export default defineComponent({
           this.files = response.data
         } else {
           // error
+          this.$q.notify({
+            color: 'negative',
+            message: 'Error loading scans',
+            icon: 'report_problem'
+          })
+          console.error(response)
         }
       })
-      .catch(function (err) {
+      .catch((err) => {
         // error
+        this.$q.notify({
+          color: 'negative',
+          message: 'Error loading scans',
+          icon: 'report_problem'
+        })
+        console.error(err)
       });
     })
   },
@@ -93,7 +105,12 @@ export default defineComponent({
         })
         .catch((err) => {
           // error
-          console.log(err)
+          this.$q.notify({
+            color: 'negative',
+            message: `Error loading ${filename}`,
+            icon: 'report_problem'
+          })
+          console.error(err)
           reject(err)
         })
       })
@@ -115,10 +132,22 @@ export default defineComponent({
           })
         } else {
           // error
+          this.$q.notify({
+            color: 'negative',
+            message: 'Error deleting image',
+            icon: 'report_problem'
+          })
+          console.error(response)
         }
       })
-      .catch(function (err) {
+      .catch((err) => {
         // error
+        this.$q.notify({
+          color: 'negative',
+          message: 'Error deleting image',
+          icon: 'report_problem'
+        })
+        console.error(err)
       });
     }
   }

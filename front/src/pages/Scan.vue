@@ -45,14 +45,14 @@
       </q-form>
     </div>
     <div v-if="filename != undefined">
-      <div class="row justify-center q-mt-lg">
+      <div class="row justify-center q-mt-lg q-mb-md">
         <div style="position:relative;">
           <img ref="img" :src="image_url" style="max-height:500px;" crossorigin="anonymous" />
         </div>
       </div>
-      <div class="row justify-center">
+      <div class="col justify-center">
         <div class="q-mr-md q-mb-md">
-          <div>
+          <div style="margin-bottom: 5pt">
             <a 
               :href="image_url" 
               class="q-my-md" 
@@ -103,6 +103,11 @@ export default defineComponent({
         {label: '4:3', x: 4, y: 3},
         {label: '16:9', x: 16, y: 9},
         {label: 'A4', x: 210, y: 297},
+        {label: 'A4 ↻', x: 297, y: 210},
+        {label: '3:2', x: 3, y: 2},
+        {label: '3:4', x: 3, y: 4},
+        {label: '9:16', x: 9, y: 16},
+        
       ],
       format: undefined, // 'png',
       formatOptions: ['png', 'jpg'],
@@ -162,7 +167,12 @@ export default defineComponent({
         })
         .catch((err) => {
           // error
-          console.log(err)
+          this.$q.notify({
+            color: 'negative',
+            message: `Error loading ${filename}`,
+            icon: 'report_problem'
+          })
+          console.error(err)
           reject(err)
         })
       })
@@ -183,10 +193,22 @@ export default defineComponent({
           this.filename = response.data.filename
         } else {
           // error
+          this.$q.notify({
+            color: 'negative',
+            message: 'Error starting scan',
+            icon: 'report_problem'
+          })
+          console.error(response)
         }
         this.inProgress = false
       }).catch( (err) => {
         // error
+        this.$q.notify({
+          color: 'negative',
+          message: 'Error starting scan',
+          icon: 'report_problem'
+        })
+        console.error(err)
         this.inProgress = false
       })
     },
@@ -281,21 +303,24 @@ export default defineComponent({
           }
       })
       .then((res) => {
-        //...
-        console.log('done')
-        console.log(res)
+        // success
+        this.$q.notify({
+          color: 'positive',
+          message: 'Image updated',
+          icon: 'check'
+        })
         this.reloadImage()
       })
       .catch((err) => {
-        //...
-        console.log('problem')
-        console.log(err)
+        // error
+        this.$q.notify({
+          color: 'negative',
+          message: 'Error updating image',
+          icon: 'report_problem'
+        })
+        console.error(err)
       })
-
     }
-
   }
-
-
 });
 </script>

@@ -59,6 +59,15 @@ You can check the status by running: `sudo swis service status`
 
 **❗IMPORTANT❗** Change the IP (`[HOST IP ADDRESS]` above) to a proper host IP address, and `[USER]` and `[GROUP]` to a proper system user (owner of scanned documents).
 
+### Upgrade to new version
+
+To upgrade swis to the new version following steps need to be performed (notice that config needs to be provided):
+
+```
+sudo pip install -U swis
+sudo swis --ip [HOST IP ADDRESS] --port 5520 -u [USER] -g [GROUP] service install 
+sudo swis service start
+```
 
 ## Screenshots
 
@@ -83,9 +92,9 @@ You can check the status by running: `sudo swis service status`
 
 ## TODO:
 
-- [ ] error handling
+- [x] error handling
 - [x] pip package
 - [x] automatically add service with `systemctl`
-- [ ] better user interface (i.e. image remove button, save as pdf, etc.)
-- [ ] move actions to vuex (frontend)
+- [x] better user interface (i.e. image remove button)
+- [ ] save as pdf, etc.
 
