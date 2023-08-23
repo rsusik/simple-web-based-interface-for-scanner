@@ -32,3 +32,8 @@ class ProcessResult(BaseModel):
     returncode: int
     stdout: str
     stderr: str
+
+class MergeResult(BaseModel):
+    returncode: int
+    detail: str
+    filename: Optional[str] = None

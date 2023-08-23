@@ -96,5 +96,6 @@ sudo swis service start
 - [x] pip package
 - [x] automatically add service with `systemctl`
 - [x] better user interface (i.e. image remove button)
-- [ ] save as pdf, etc.
+- [x] save as pdf
+- [ ] cache thumbnails to faster load list of images
 

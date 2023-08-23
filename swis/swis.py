@@ -266,6 +266,28 @@ def endpoint_images_update_post(
     return True
 
 
+# make pdf from selected filenames
+@app.post('/makepdf')
+def endpoint_images_makepdf_post(
+    request: Request,
+    filenames: List[str]
+):
+    target_folder = Path(settings.SCANS_FOLDER)
+    create_folder(target_folder, settings.USER,settings.GROUP)
+
+    target_filepath = target_folder / (datetime.datetime.now().strftime("%Y%m%d-%H%M%S") + '_' + str(random.randint(100, 999)) + '.pdf')
+    cmd = ['convert']
+    cmd.extend([str(target_folder / filename) for filename in filenames])
+    cmd.append(str(target_filepath))
+    p = run_pocess('convert', cmd)
+
+    return schemas.MergeResult(
+        returncode = p.returncode,
+        detail = p.stdout if p.returncode==0 else p.stderr,
+        filename = target_filepath.name
+    )
+
+
 @app.get('/scans')
 def endpoint_images_get():
     return list(filter(lambda x: Path(x).suffix in ['.jpg', '.jpeg', '.png', '.pdf'], os.listdir(settings.SCANS_FOLDER)))
@@ -277,7 +299,6 @@ def endpoint_images_delete(
     filename: str
 ):
     target_filepath = Path(settings.SCANS_FOLDER) / filename
-    print(target_filepath)
     if target_filepath.exists():
         os.remove(target_filepath)
         return True

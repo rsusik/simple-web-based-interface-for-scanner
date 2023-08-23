@@ -1,10 +1,29 @@
 <template>
 
   <q-page class="col">
+      
       <q-list class="shadow-2 rounded-borders q-mx-lg q-my-lg" style="width: 96%;">
+        <q-btn v-if="this.pdflist.length > 0" label="Create PDF" icon="picture_as_pdf" @click="createPdf" class="q-ma-sm" color="red" />
         <q-item v-for="item in items" :key="item" style="border-bottom: 1px solid #eee" >
           <q-item-section thumbnail>
+            <q-btn v-if="!item.onpdflist && (item.filename.endsWith('png') || item.filename.endsWith('jpg'))" @click="addToPdfList(item.filename)" icon="picture_as_pdf" size="xs" outline rounded style="width: 10px; margin-left: 5px;" />
+            <q-btn v-else-if="item.onpdflist" @click="removeFromPdfList(item.filename)" :label="getPdfListIndex(item.filename)" size="xs" outline rounded style="width: 10px; margin-left: 5px;" />
+            <q-btn v-else size="xs" flat rounded style="width: 10px; margin-left: 5px;" disabled />
+          </q-item-section>
+          <q-item-section thumbnail>
+            <div v-if="item.filename.endsWith('pdf')" 
+              style="width: 128px; height: 128px; border: 1px solid #eee; vertical-align: middle; justify-items: center; align-items: center; display: flex; flex-direction: column; justify-content: center; align-content: center;" >
+              <q-icon
+                name="picture_as_pdf" 
+                class="text-center"
+                fit="contain"
+                style="width: 128px; max-height: 128px; "
+                size="64px"
+                color="red"
+              />
+            </div>
             <q-img 
+              v-else
               class="text-center"
               fit="contain"
               style="width: 128px; max-height: 128px; border: 1px solid #eee;"
@@ -45,7 +64,8 @@ export default defineComponent({
   data: function() {
     return {
       files: [],
-      config: undefined
+      config: undefined,
+      pdflist: []
     }
   },
 
@@ -59,7 +79,8 @@ export default defineComponent({
         return {
           filename: filename,
           src: `http://${this.config.api_url}:${this.config.api_port}${this.config.scans_url}/${filename}`,
-          type: this.getFileType(filename)
+          type: this.getFileType(filename),
+          onpdflist: this.pdflist.includes(filename)
         }
       })
     }
@@ -95,6 +116,47 @@ export default defineComponent({
   },
 
   methods: {
+    addToPdfList: function(filename) {
+      this.pdflist.push(filename)
+    },
+
+    removeFromPdfList: function(filename) {
+      this.pdflist = this.pdflist.filter( (item) => {
+        return item != filename
+      })
+    },
+
+    getPdfListIndex: function(filename) {
+      return this.pdflist.indexOf(filename) + 1
+    },
+
+    createPdf: function() {
+      return new Promise((resolve, reject) => {
+        this.$axios.post(`http://${this.config.api_url}:${this.config.api_port}/makepdf`, this.pdflist)
+        .then((response) => {
+          if (response?.status == 200) {
+            this.$q.notify({
+              color: 'positive',
+              message: 'PDF created',
+              icon: 'done'
+            })
+            this.pdflist = []
+            
+            // go to URL with scan: `http://${this.config.api_url}:${this.config.api_port}/files/${response.data.filename}`
+            window.open(`http://${this.config.api_url}:${this.config.api_port}/files/${response.data.filename}`, '_blank')
+          } else {
+            // error
+            this.$q.notify({
+              color: 'negative',
+              message: 'Error creating PDF. Make sure you have "convert" tool installed on server.',
+              icon: 'report_problem'
+            })
+            console.error(response)
+          }
+        })
+      })
+    },
+
     getJSON: function (target, filename) {
       return new Promise((resolve, reject) => {
         this.$axios.get(filename).
