@@ -26,6 +26,7 @@ From a technical perspective, it is simply a SANE scanimage wrapper. There are q
 
 - Linux
 - SANE (Scanner Access Now Easy) properly configured (`scanimage` tool)
+- `convert` tool for pdf creation
 - Python >= 3.8
 - [Optionally] NPM (for frontend app building)
 
