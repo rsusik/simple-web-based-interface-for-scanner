@@ -3,7 +3,10 @@
   <q-page class="col">
       
       <q-list class="shadow-2 rounded-borders q-mx-lg q-my-lg" style="width: 96%;">
-        <q-btn v-if="this.pdflist.length > 0" label="Create PDF" icon="picture_as_pdf" @click="createPdf" class="q-ma-sm" color="red" />
+        <div v-if="this.pdflist.length > 0" class="row rounded-borders	 ">
+          <q-input outlined v-model="pdffilename" label="Filename (optional)" class="q-ma-sm" />
+          <q-btn label="Create PDF" icon="picture_as_pdf" @click="createPdf" class="q-ma-sm" color="red" />
+        </div>
         <q-item v-for="item in items" :key="item" style="border-bottom: 1px solid #eee" >
           <q-item-section thumbnail>
             <q-btn v-if="!item.onpdflist && (item.filename.endsWith('png') || item.filename.endsWith('jpg'))" @click="addToPdfList(item.filename)" icon="picture_as_pdf" size="xs" outline rounded style="width: 10px; margin-left: 5px;" />
@@ -26,13 +29,13 @@
               v-else
               class="text-center"
               fit="contain"
-              style="width: 128px; max-height: 128px; border: 1px solid #eee;"
+              style="width: 128px; max-height: 128px; height: 128px; border: 1px solid #eee;"
               :img-style="{
                 'min-width': '100%', 
                 'min-height': '100%', 
                 'object-fit': 'cover'
               }"
-              :src="`${item.src}`"
+              :src="`${item.thumbnail}`"
               spinner-color="black" 
             />
           </q-item-section>
@@ -65,7 +68,8 @@ export default defineComponent({
     return {
       files: [],
       config: undefined,
-      pdflist: []
+      pdflist: [],
+      pdffilename: ''
     }
   },
 
@@ -75,47 +79,53 @@ export default defineComponent({
 
   computed: {
     items: function() {
-      return this.files.map( (filename) => {
+      return this.files.map( (file) => {
         return {
-          filename: filename,
-          src: `http://${this.config.api_url}:${this.config.api_port}${this.config.scans_url}/${filename}`,
-          type: this.getFileType(filename),
-          onpdflist: this.pdflist.includes(filename)
+          filename: file.filename,
+          src      : `http://${this.config.api_url}:${this.config.api_port}${this.config.scans_url}/${file.filename}`,
+          thumbnail: `http://${this.config.api_url}:${this.config.api_port}${this.config.scans_url}/${file.thumbnail}`,
+          type: this.getFileType(file.filename),
+          onpdflist: this.pdflist.includes(file.filename)
         }
       })
     }
   },
 
   mounted() {
-    this.getJSON('config', 'config.json').then((config) => {
-      this.config = config
-      this.$axios.get(`http://${this.config.api_url}:${this.config.api_port}/scans`)
-      .then((response) => {
-        if (response?.status == 200) {
-          this.files = response.data
-        } else {
+    this.getScanList()
+  },
+
+  methods: {
+
+    getScanList: function() {
+      this.getJSON('config', 'config.json').then((config) => {
+        this.config = config
+        this.$axios.get(`http://${this.config.api_url}:${this.config.api_port}/scans`)
+        .then((response) => {
+          if (response?.status == 200) {
+            this.files = response.data.filenames
+          } else {
+            // error
+            this.$q.notify({
+              color: 'negative',
+              message: 'Error loading scans',
+              icon: 'report_problem'
+            })
+            console.error(response)
+          }
+        })
+        .catch((err) => {
           // error
           this.$q.notify({
             color: 'negative',
             message: 'Error loading scans',
             icon: 'report_problem'
           })
-          console.error(response)
-        }
+          console.error(err)
+        });
       })
-      .catch((err) => {
-        // error
-        this.$q.notify({
-          color: 'negative',
-          message: 'Error loading scans',
-          icon: 'report_problem'
-        })
-        console.error(err)
-      });
-    })
-  },
-
-  methods: {
+    },
+    
     addToPdfList: function(filename) {
       this.pdflist.push(filename)
     },
@@ -132,7 +142,10 @@ export default defineComponent({
 
     createPdf: function() {
       return new Promise((resolve, reject) => {
-        this.$axios.post(`http://${this.config.api_url}:${this.config.api_port}/makepdf`, this.pdflist)
+        this.$axios.post(`http://${this.config.api_url}:${this.config.api_port}/makepdf`, {
+          target: this.pdffilename,
+          filenames: this.pdflist
+        })
         .then((response) => {
           if (response?.status == 200) {
             this.$q.notify({
@@ -141,7 +154,8 @@ export default defineComponent({
               icon: 'done'
             })
             this.pdflist = []
-            
+            this.pdffilename = ''
+            this.getScanList()
             // go to URL with scan: `http://${this.config.api_url}:${this.config.api_port}/files/${response.data.filename}`
             window.open(`http://${this.config.api_url}:${this.config.api_port}/files/${response.data.filename}`, '_blank')
           } else {
@@ -190,7 +204,7 @@ export default defineComponent({
       .then((response) => {
         if (response?.status == 200) {
           this.files = this.files.filter( (item) => {
-            return item != filename
+            return item.filename != filename
           })
         } else {
           // error

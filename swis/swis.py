@@ -270,16 +270,28 @@ def endpoint_images_update_post(
 @app.post('/makepdf')
 def endpoint_images_makepdf_post(
     request: Request,
-    filenames: List[str]
+    scan_request: schemas.MakePdf
 ):
     target_folder = Path(settings.SCANS_FOLDER)
     create_folder(target_folder, settings.USER,settings.GROUP)
 
-    target_filepath = target_folder / (datetime.datetime.now().strftime("%Y%m%d-%H%M%S") + '_' + str(random.randint(100, 999)) + '.pdf')
+    if scan_request.target:
+        if scan_request.target.endswith('.pdf'):
+            target_filepath = target_folder / scan_request.target
+        else:
+            target_filepath = target_folder / (scan_request.target + '.pdf')
+    else:
+        target_filepath = target_folder / (datetime.datetime.now().strftime("%Y%m%d-%H%M%S") + '_' + str(random.randint(100, 999)) + '.pdf')
     cmd = ['convert']
-    cmd.extend([str(target_folder / filename) for filename in filenames])
+    cmd.extend([str(target_folder / filename) for filename in scan_request.filenames])
     cmd.append(str(target_filepath))
     p = run_pocess('convert', cmd)
+    if settings.USER is not None and settings.GROUP is not None:
+        os.chown(
+            target_filepath, 
+            pwd.getpwnam(settings.USER).pw_uid, 
+            grp.getgrnam(settings.GROUP).gr_gid
+        )
 
     return schemas.MergeResult(
         returncode = p.returncode,
@@ -290,7 +302,39 @@ def endpoint_images_makepdf_post(
 
 @app.get('/scans')
 def endpoint_images_get():
-    return list(filter(lambda x: Path(x).suffix in ['.jpg', '.jpeg', '.png', '.pdf'], os.listdir(settings.SCANS_FOLDER)))
+    filenames = list(filter(lambda x: Path(x).suffix in ['.jpg', '.jpeg', '.png', '.pdf'], os.listdir(settings.SCANS_FOLDER)))
+    filenames.sort(key=lambda x: os.path.getmtime(Path(settings.SCANS_FOLDER) / x), reverse=True)
+    thumbnails = []
+    for filename in filenames:
+        if Path(filename).suffix in ['.pdf']:
+            thumbnails.append('')
+            continue
+        thumb_filename = f'thumbs/{filename}.thumb.jpg'
+        thumb_filename_path = Path(settings.SCANS_FOLDER) / thumb_filename
+        if not thumb_filename_path.exists():
+            thumb_filename_path.parent.mkdir(parents=True, exist_ok=True)
+            try:
+                from PIL import Image, ImageFile
+                ImageFile.LOAD_TRUNCATED_IMAGES = True
+                im = Image.open(Path(settings.SCANS_FOLDER) / filename)
+                im.thumbnail((128, 128))
+                im.save(thumb_filename_path, "JPEG")
+            except Exception as ex:
+                print(f'Problem with generating thumbnail for {filename}')
+                print(ex)
+                thumb_filename = filename # cannot create thumbnail, use original
+        thumbnails.append(thumb_filename)
+
+    return schemas.ScanList(
+        returncode = 0,
+        detail = '',
+        filenames = [
+            schemas.ScanListItem(
+                filename=filename, 
+                thumbnail=thumbnail
+            ) 
+        for filename, thumbnail in zip(filenames, thumbnails)]
+    )
 
 
 @app.delete('/scans/{filename}')
@@ -301,6 +345,10 @@ def endpoint_images_delete(
     target_filepath = Path(settings.SCANS_FOLDER) / filename
     if target_filepath.exists():
         os.remove(target_filepath)
+        if Path(filename).suffix in ['.pdf']:
+            pass
+        elif (Path(settings.SCANS_FOLDER) / 'thumbs' / f'{filename}.thumb.jpg').exists():
+            os.remove(Path(settings.SCANS_FOLDER) / 'thumbs' / f'{filename}.thumb.jpg')
         return True
     return False
 

@@ -1,7 +1,7 @@
 # pydentic models
 from enum import Enum
 from pydantic import BaseModel
-from typing import Optional
+from typing import List, Optional
 
 class ScanModeEnum(str, Enum):
     color = 'color'
@@ -23,6 +23,11 @@ class ScanRequest(BaseModel):
     format: ScanFormatEnum
     filename: Optional[str] = None
 
+class MakePdf(BaseModel):
+    target: Optional[str] = None
+    filenames: List[str] = None
+
+
 class ScanResult(BaseModel):
     code: int
     detail: str
@@ -37,3 +42,13 @@ class MergeResult(BaseModel):
     returncode: int
     detail: str
     filename: Optional[str] = None
+
+class ScanListItem(BaseModel):
+    filename: str
+    thumbnail: str
+
+class ScanList(BaseModel):
+    returncode: int
+    detail: str
+    filenames: List[ScanListItem] = None
+    

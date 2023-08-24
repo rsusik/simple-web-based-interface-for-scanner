@@ -91,12 +91,4 @@ sudo swis service start
 <img src="https://github.com/rsusik/simple-web-based-interface-for-scanner/raw/main/screenshots/06-list.png" width="300">
 
 
-## TODO:
-
-- [x] error handling
-- [x] pip package
-- [x] automatically add service with `systemctl`
-- [x] better user interface (i.e. image remove button)
-- [x] save as pdf
-- [ ] cache thumbnails to faster load list of images
 

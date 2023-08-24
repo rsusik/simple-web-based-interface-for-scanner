@@ -4,3 +4,4 @@ python-dotenv
 python-multipart
 websockets~=9.1
 pydantic~=1.9
+Pillow>=9
