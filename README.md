@@ -67,7 +67,7 @@ To upgrade swis to the new version following steps need to be performed (notice 
 ```
 sudo pip install -U swis
 sudo swis --ip [HOST IP ADDRESS] --port 5520 -u [USER] -g [GROUP] service install 
-sudo swis service start
+sudo swis service stop; sudo swis service start
 ```
 
 ## Screenshots
