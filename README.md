@@ -90,5 +90,5 @@ sudo swis service stop; sudo swis service start
 ### List of scanned images
 <img src="https://github.com/rsusik/simple-web-based-interface-for-scanner/raw/main/screenshots/06-list.png" width="300">
 
-
-
+### Creating PDF file from scanned documents
+<img src="https://github.com/rsusik/simple-web-based-interface-for-scanner/raw/main/screenshots/07-pdf.png" width="300">
