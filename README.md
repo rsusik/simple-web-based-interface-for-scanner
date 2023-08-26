@@ -70,6 +70,16 @@ sudo swis --ip [HOST IP ADDRESS] --port 5520 -u [USER] -g [GROUP] service instal
 sudo swis service stop; sudo swis service start
 ```
 
+## Cockpit
+
+There is option to integrate SWIS with [Cockpit](https://cockpit-project.org/).
+This feature is under early development.
+
+Project is available at: https://github.com/rsusik/swis-cockpit
+
+<img src="https://github.com/rsusik/simple-web-based-interface-for-scanner/raw/main/screenshots/07-cockpit.png" width="300">
+
+
 ## Screenshots
 
 ### Welcome screen
