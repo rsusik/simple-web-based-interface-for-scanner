@@ -22,13 +22,20 @@ This is a simple web-based interface for scanners. It allows sharing the scanner
 
 From a technical perspective, it is simply a SANE scanimage wrapper. There are quite many things to do to make it production (see TODO section).
 
+## Features
+
+- Scanning to png, jpeg formats with provided DPI and color palette 
+- Cropping scanned images 
+- Creating PDF documents
+- Browsing scanned documents 
+
 ## Requirements
 
 - Linux
 - SANE (Scanner Access Now Easy) properly configured (`scanimage` tool)
 - `convert` tool for pdf creation
 - Python >= 3.8
-- [Optionally] NPM (for frontend app building)
+- [Optionally] NPM (for frontend development purpose)
 
 ## Install and run (local user)
 ```
@@ -100,5 +107,5 @@ Project is available at: https://github.com/rsusik/swis-cockpit
 ### List of scanned images
 <img src="https://github.com/rsusik/simple-web-based-interface-for-scanner/raw/main/screenshots/06-list.png" width="300">
 
-
-
+### Creating PDF file from scanned documents
+<img src="https://github.com/rsusik/simple-web-based-interface-for-scanner/raw/main/screenshots/07-pdf.png" width="300">
