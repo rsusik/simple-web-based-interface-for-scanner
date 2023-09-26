@@ -44,14 +44,23 @@
             
           </q-item-section>
           <q-item-section avatar>
+            <div class="row">
+            <q-btn
+              class="q-mr-sm"
+              color="blue"
+              label=""
+              icon="print"
+              size="sm"
+              @click="printImage(item.filename)"
+            />
             <q-btn
               color="red"
               label=""
               icon="delete"
               size="sm"
-
               @click="removeImage(item.filename)"
             />
+            </div>
           </q-item-section>
         </q-item>
       </q-list>
@@ -225,6 +234,9 @@ export default defineComponent({
         })
         console.error(err)
       });
+    },
+    printImage: function(filename) {
+      this.$router.push({ path: '/print', query: { filename: filename } })
     }
   }
 

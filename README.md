@@ -22,17 +22,22 @@ This is a simple web-based interface for scanners. It allows sharing the scanner
 
 From a technical perspective, it is simply a SANE scanimage wrapper. There are quite many things to do to make it production (see TODO section).
 
+Recently, printing and uploading features have been added. The uploading feature allows to upload documents to the server and then print them. This is useful when you want to print documents from your phone or other devices.
+
 ## Features
 
 - Scanning to png, jpeg formats with provided DPI and color palette 
 - Cropping scanned images 
 - Creating PDF documents
 - Browsing scanned documents 
+- Printing files
+- Uploading
 
 ## Requirements
 
 - Linux
 - SANE (Scanner Access Now Easy) properly configured (`scanimage` tool)
+- OpenPrinting configured on server (`lp` tool)
 - `convert` tool for pdf creation
 - Python >= 3.8
 - [Optionally] NPM (for frontend development purpose)
@@ -72,9 +77,10 @@ You can check the status by running: `sudo swis service status`
 To upgrade swis to the new version following steps need to be performed (notice that config needs to be provided):
 
 ```
+sudo swis service stop
 sudo pip install -U swis
 sudo swis --ip [HOST IP ADDRESS] --port 5520 -u [USER] -g [GROUP] service install 
-sudo swis service stop; sudo swis service start
+sudo swis service start
 ```
 
 ## Cockpit
@@ -109,3 +115,9 @@ Project is available at: https://github.com/rsusik/swis-cockpit
 
 ### Creating PDF file from scanned documents
 <img src="https://github.com/rsusik/simple-web-based-interface-for-scanner/raw/main/screenshots/07-pdf.png" width="300">
+
+### Uploading documents
+<img src="https://github.com/rsusik/simple-web-based-interface-for-scanner/raw/main/screenshots/08-upload.png" width="300">
+
+### Printing documents
+<img src="https://github.com/rsusik/simple-web-based-interface-for-scanner/raw/main/screenshots/09-print.png" width="300">

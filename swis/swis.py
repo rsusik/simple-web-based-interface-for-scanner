@@ -23,7 +23,7 @@ import json
 from typing import List
 
 from fastapi.responses import RedirectResponse
-from fastapi import FastAPI, File, Request, UploadFile
+from fastapi import FastAPI, File, HTTPException, Request, UploadFile, status
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.cors import CORSMiddleware
 
@@ -300,6 +300,25 @@ def endpoint_images_makepdf_post(
     )
 
 
+# Function creates thumbnails for given image
+def create_thumbnail(filename):
+    thumb_filename = f'thumbs/{filename}.thumb.jpg'
+    thumb_filename_path = Path(settings.SCANS_FOLDER) / thumb_filename
+    if not thumb_filename_path.exists():
+        thumb_filename_path.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            from PIL import Image, ImageFile
+            ImageFile.LOAD_TRUNCATED_IMAGES = True
+            im = Image.open(Path(settings.SCANS_FOLDER) / filename)
+            im.thumbnail((128, 128))
+            im.save(thumb_filename_path, "JPEG")
+        except Exception as ex:
+            print(f'Problem with generating thumbnail for {filename}')
+            print(ex)
+            thumb_filename = filename # cannot create thumbnail, use original
+    return thumb_filename
+
+
 @app.get('/scans')
 def endpoint_images_get():
     filenames = list(filter(lambda x: Path(x).suffix in ['.jpg', '.jpeg', '.png', '.pdf'], os.listdir(settings.SCANS_FOLDER)))
@@ -351,6 +370,116 @@ def endpoint_images_delete(
             os.remove(Path(settings.SCANS_FOLDER) / 'thumbs' / f'{filename}.thumb.jpg')
         return True
     return False
+
+
+# Endpoint for printing given image file
+@app.post('/print/execute')
+def endpoint_print_post(
+    # request: Request,
+    print_request: schemas.PrintRequest
+):
+    args = []
+    if print_request.quality in ['draft', 'normal', 'best']:
+        args.append(f'-o print-quality={print_request.quality}')
+    if print_request.orientation in ['portrait', 'landscape']:
+        args.append(f'-o orientation-requested={print_request.orientation}')
+    if print_request.sides in ['one-sided', 'two-sided-long-edge', 'two-sided-short-edge']:
+        args.append(f'-o sides={print_request.sides}')
+    if print_request.pages != '' and print_request.pages is not None and all([
+        x.isdigit() for x in print_request.pages.replace(' ', '').replace(';', ',').split(',')
+    ]):
+        args.append(f'-P {print_request.pages}')
+    
+    target_filepath = Path(settings.SCANS_FOLDER) / print_request.filename
+    if target_filepath.exists():
+        p = run_pocess('lp', [str(target_filepath), *args])
+        return schemas.PrintResult(
+            code = p.returncode,
+            detail = p.stdout if p.returncode==0 else p.stderr,
+            filename = target_filepath.name
+        )
+    return schemas.PrintResult(
+        code = 999,
+        detail = 'File not found',
+        filename = target_filepath.name
+    )
+
+
+def get_image_filename(suffix:str) -> str:
+    return f'{datetime.datetime.now().strftime("%Y%m%d-%H%M%S")}_{random.randint(100, 999)}{suffix}'
+
+
+@app.post('/upload')
+def upload_image(
+    request: Request,
+    file: UploadFile = File(...),
+):
+    FILE_SIZE_LIMIT = 1024 * 1024 * 100 # 100MB
+    if 'content-length' not in request.headers or int(request.headers['content-length']) > FILE_SIZE_LIMIT:
+        logger.error(f'{request.client.host} | {file.filename} | Content length is not provided or file is too large')
+        raise HTTPException(
+            # Importing status from fastapi
+            status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            detail='Content length is not provided or file is too large'
+        )
+
+    suffix = Path(file.filename).suffix
+    if suffix not in [
+        '.ico',
+        '.jpg', '.jpeg', '.jpe', '.jif', '.jfif', '.jfi', 
+        '.png', 
+        '.gif', 
+        '.webp', 
+        '.tiff', '.tif', 
+        '.psd', 
+        '.raw', '.arw', '.cr2', '.nrw', '.k25', 
+        '.bmp', '.dib', 
+        '.heif', '.heic', 
+        '.ind', '.indd', '.indt', 
+        '.jp2', '.j2k', '.jpf', '.jpx', '.jpm', '.mj2', 
+        '.svg', '.svgz', 
+        '.ai', 
+        '.eps', 
+        '.pdf']:
+        raise HTTPException(
+            status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=f'This file extension is not allowed'
+        )
+    filename = get_image_filename(suffix)
+    while os.path.isfile(filename):
+        filename = get_image_filename(suffix)
+    
+    # Save image
+    target_folder = Path(settings.SCANS_FOLDER)
+    if not os.path.isdir(target_folder):
+        os.mkdir(target_folder)
+
+    target_filepath = target_folder / filename
+    with open(target_filepath, 'wb+') as file_object:
+        filesize = file_object.write(file.file.read())
+
+    if filesize > FILE_SIZE_LIMIT: # To nigdy nie powinno się wykonać, jedynie jak ktoś ręcznie zanizy content-length
+        logger.error(f'{request.client.host} | {file.filename} | File size is too large ({filesize})')
+        os.remove(target_filepath)
+        raise HTTPException(
+            status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            detail=f'File size is too large ({filesize})'
+        )
+    
+    # Create thumbnail
+    if suffix in ['.pdf']:
+        pass
+    else:
+        create_thumbnail(filename)
+
+
+    return schemas.ImageUploadResult(
+        filename = filename,
+        filesize = filesize,
+        org_filename = file.filename,
+        returncode = 0,
+        detail = 'OK'
+    )
 
 
 def write_conf(settings:Settings):

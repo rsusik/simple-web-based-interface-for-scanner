@@ -52,3 +52,18 @@ class ScanList(BaseModel):
     detail: str
     filenames: List[ScanListItem] = None
     
+class ImageUploadResult(BaseModel):
+    returncode: int
+    detail: str
+    filename: Optional[str] = None
+    org_filename: Optional[str] = None
+
+class PrintRequest(BaseModel):
+    filename: str
+    quality: str
+    orientation: str
+    sides: str
+    pages: Optional[str] = None
+
+class PrintResult(ScanResult):
+    pass

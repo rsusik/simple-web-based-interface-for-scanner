@@ -49,6 +49,12 @@ const linksList = [
     icon: "photo_library",
     link: "/#/scans",
   },
+  {
+    title: "Upload",
+    caption: "Upload image",
+    icon: "cloud_upload",
+    link: "/#/upload",
+  },
 ];
 
 import { defineComponent, ref } from "vue";
