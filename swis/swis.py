@@ -21,6 +21,7 @@ import subprocess
 from pathlib import Path
 import json
 from typing import List
+from PIL import Image, ImageFile
 
 from fastapi.responses import RedirectResponse
 from fastapi import FastAPI, File, HTTPException, Request, UploadFile, status
@@ -121,6 +122,23 @@ def run_pocess(cmd:str, params:list) -> schemas.ProcessResult:
 
 def run_sudo_pocess(cmd:str, params:list) -> schemas.ProcessResult:
     return _run_pocess(['sudo', cmd] + params)
+
+def is_image_truncated(image_path):
+    try:
+        with Image.open(image_path) as img:
+            img.load()
+            return False
+    except (IOError, SyntaxError, ValueError) as e:
+        return True
+
+def repair_truncated_image(filename):
+    try:
+        ImageFile.LOAD_TRUNCATED_IMAGES = True
+        im = Image.open(filename)
+        im.save(filename)
+    except Exception as ex:
+        print(f'Problem with repairing the image: {filename}')
+        print(ex)
 
 def service_install(
     settings:Settings,
@@ -230,6 +248,9 @@ def scan_execute(
     create_folder(settings.SCANS_FOLDER, settings.USER,settings.GROUP)
     
     p = run_pocess('scanimage', params)
+
+    if is_image_truncated(f'{settings.SCANS_FOLDER}/{filename}'):
+        repair_truncated_image(f'{settings.SCANS_FOLDER}/{filename}')
     
     out = p.stdout
     err = p.stderr
@@ -282,10 +303,15 @@ def endpoint_images_makepdf_post(
             target_filepath = target_folder / (scan_request.target + '.pdf')
     else:
         target_filepath = target_folder / (datetime.datetime.now().strftime("%Y%m%d-%H%M%S") + '_' + str(random.randint(100, 999)) + '.pdf')
-    cmd = ['convert']
+    cmd = []
     cmd.extend([str(target_folder / filename) for filename in scan_request.filenames])
     cmd.append(str(target_filepath))
+    logger.info(f'Running pdf convert: {cmd}')
     p = run_pocess('convert', cmd)
+    if 'Not enough image data' in p.stdout or 'Not enough image data' in p.stderr or p.returncode != 0:
+        for imgfilename in scan_request.filenames:
+            repair_truncated_image(str(target_folder / imgfilename))  # TODO: Add Exception support
+        p = run_pocess('convert', cmd)
     if settings.USER is not None and settings.GROUP is not None:
         os.chown(
             target_filepath, 
